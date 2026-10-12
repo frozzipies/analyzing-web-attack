@@ -502,10 +502,15 @@ def wait_opensearch():
 def harden_security():
     """Petakan user anonymous -> role READ-ONLY lewat Security REST API (sbg admin).
     Dijalankan tiap start (idempoten via PUT). Anonymous dapat:
-      - readall        : baca semua index (termasuk data nusacommerce-*)
-      - kibana_user    : akses saved object/tenant (agar dashboard bisa DILIHAT)
-      - kibana_read_only : penanda read-only mode di Dashboards (blok tulis/edit/hapus)
-    Tulis ke data index tetap ditolak (readall hanya baca); tulis .kibana ditolak readonly_mode.
+      - baca semua index nusacommerce-* (data lab)
+      - baca saved object di Global tenant (dashboard & visualisasi bawaan)
+
+    CATATAN: role `kibana_read_only` SENGAJA TIDAK dipetakan. Role itu memicu
+    readonly_mode di Dashboards yang menyembunyikan hampir seluruh sidebar
+    (Visualize, Dev Tools, dll) sehingga peserta tak bisa eksplorasi.
+    Perlindungan tetap utuh karena ditegakkan di level ROLE, bukan di UI:
+    tanpa izin tulis, semua percobaan tulis/hapus (data maupun saved object)
+    ditolak 403 oleh OpenSearch — lewat UI, saved-object API, maupun Dev Tools.
     """
     anon = "opendistro_security_anonymous_backendrole"
     api = f"{OPENSEARCH_URL}/_plugins/_security/api"
@@ -527,10 +532,13 @@ def harden_security():
     }
     code, resp = req("PUT", f"{api}/roles/soc_viewer", json.dumps(role))
     log(f"  role soc_viewer: HTTP {code} {'OK' if code in (200,201) else resp[:160]}")
-    for r, body in [("soc_viewer", {"backend_roles": [anon]}),
-                    ("kibana_read_only", {"backend_roles": [anon]})]:
+    for r, body in [("soc_viewer", {"backend_roles": [anon]})]:
         code, resp = req("PUT", f"{api}/rolesmapping/{r}", json.dumps(body))
         log(f"  rolesmapping {r}: HTTP {code} {'OK' if code in (200,201) else resp[:160]}")
+    # Pastikan sisa pemetaan readonly_mode dari start sebelumnya ikut dibersihkan,
+    # supaya sidebar (Visualize dkk) tidak ikut tersembunyi.
+    code, _ = req("DELETE", f"{api}/rolesmapping/kibana_read_only")
+    log(f"  rolesmapping kibana_read_only dihapus: HTTP {code}")
 
 
 def recreate_index(name, mapping):
@@ -661,8 +669,9 @@ def vs_table(title, bucket_fields):
 
 
 def setup_dashboards():
-    # securitytenant: global -> saved object disimpan di Global tenant (dibaca anonymous)
-    hdr = {"osd-xsrf": "true", "securitytenant": "global"}
+    # multitenancy dimatikan di opensearch_dashboards.yml, jadi JANGAN kirim header
+    # "securitytenant" -- Dashboards menolaknya dengan 403 dan semua saved object gagal dibuat.
+    hdr = {"osd-xsrf": "true"}
     log(f"menunggu Dashboards di {DASHBOARDS_URL} ...")
     ready = False
     for _ in range(120):

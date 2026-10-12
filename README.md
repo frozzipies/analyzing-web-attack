@@ -109,12 +109,18 @@ https://hack.redlimit.id/soc-lab**, bukan di lab. Kunci jawaban + query
 pembuktian + penjelasan red herring ada di `SOLUTION.md`.
 
 ## Akses & keamanan
-- **Peserta = anonymous READ-ONLY.** Security plugin OpenSearch AKTIF. Pengunjung
-  masuk tanpa login (anonymous), dipetakan ke role read-only (`soc_viewer` +
-  Global tenant `kibana_all_read`). Mereka bisa melihat dashboard & query bebas di
-  Discover, tapi **tidak bisa menulis/menghapus data, dashboard, maupun visualisasi**
-  — via UI, API saved-object, maupun Dev Tools. Jadi satu peserta iseng tidak bisa
-  merusak lab untuk yang lain.
+- **Peserta = anonymous READ-ONLY, tapi sidebar tetap LENGKAP.** Security plugin
+  OpenSearch AKTIF. Pengunjung masuk tanpa login (anonymous), dipetakan ke role
+  read-only (`soc_viewer` + Global tenant `kibana_all_read`). Mereka bisa memakai
+  **seluruh menu** — Discover, **Visualize**, Dashboards, Dev Tools — dan bebas
+  membuat visualisasi/query ad-hoc untuk eksplorasi, tapi **tidak bisa
+  menulis/menghapus data, dashboard, maupun visualisasi** (Save → 403). Jadi satu
+  peserta iseng tidak bisa merusak lab untuk yang lain.
+- **`readonly_mode` sengaja TIDAK dipakai.** Setelan
+  `opensearch_security.readonly_mode.roles` menyembunyikan hampir seluruh sidebar
+  (Visualize dkk) sehingga peserta tak bisa eksplorasi. Perlindungan di lab ini
+  ditegakkan di level **ROLE**, bukan dengan menyembunyikan tombol — tanpa izin
+  tulis, semua percobaan tulis/hapus ditolak 403 oleh OpenSearch sendiri.
 - **Admin internal.** OpenSearch REST (`:9200`) memakai user `admin`/`admin` &
   `kibanaserver`/`kibanaserver` (kredensial demo) — **tidak diekspos ke publik**
   (hanya dipakai di dalam container; yang terekspos hanya Dashboards). Seeder

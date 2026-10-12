@@ -9,13 +9,18 @@ opensearch.requestHeadersAllowlist: ["authorization", "securitytenant"]
 
 # Pengunjung masuk sebagai ANONYMOUS (tanpa login) ...
 opensearch_security.auth.anonymous_auth_enabled: true
-# ... memakai Global tenant READ-ONLY: saved object bisa DILIHAT, tak bisa diubah/hapus.
-opensearch_security.multitenancy.enabled: true
-opensearch_security.multitenancy.tenants.enable_global: true
-opensearch_security.multitenancy.tenants.enable_private: false
-opensearch_security.multitenancy.tenants.preferred: ["Global"]
-# readonly_mode menyembunyikan tombol tulis di UI (penegakan sebenarnya dari role)
-opensearch_security.readonly_mode.roles: ["kibana_read_only"]
+# ... dan multitenancy DIMATIKAN supaya dialog "Select your tenant" tidak muncul
+# (dialog itu menghadang peserta & melempar mereka keluar dari dashboard).
+# Saved object cukup disimpan di .kibana; proteksi tetap dari izin index read-only.
+opensearch_security.multitenancy.enabled: false
+# CATATAN: readonly_mode SENGAJA TIDAK dipakai.
+# readonly_mode menyembunyikan hampir seluruh sidebar (Visualize, Dev Tools, dll)
+# sehingga peserta tidak bisa eksplorasi. Perlindungan tetap ada & ditegakkan di
+# level ROLE (soc_viewer: index read-only + Global tenant kibana_all_read):
+#   - data nusacommerce-* tidak bisa ditulis/dihapus
+#   - dashboard & visualisasi bawaan tidak bisa diubah/dihapus (Save -> 403)
+# Peserta bebas memakai Discover, Visualize, dan membuat visualisasi ad-hoc.
+# opensearch_security.readonly_mode.roles: ["kibana_read_only"]
 opensearch_security.cookie.secure: false
 opensearch_security.cookie.password: "soc-lab-cookie-encryption-key-min-32-chars-xyz"
 

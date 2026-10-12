@@ -8,7 +8,11 @@ yang tidak divalidasi** — mulai dari **XSS**, **SQL Injection**, **Local File
 Inclusion (LFI)**, sampai **OS command injection**. Bongkar rantai serangannya.
 
 ## Lingkungan (lab)
-- Buka **OpenSearch Dashboards** (URL lab dari instruktur). Tanpa login (akses **read-only** — kamu bisa melihat & query, tapi tidak bisa mengubah apa pun).
+- Buka **OpenSearch Dashboards** (URL lab dari instruktur). Tanpa login (akses **read-only**
+  — kamu bisa melihat & query bebas, tapi tidak bisa mengubah apa pun).
+- **Menu lengkap tersedia**: Discover, **Visualize**, Dashboards, sampai Query Workbench.
+  Kamu bebas bikin visualisasi/agregasi sendiri untuk eksplorasi — hanya tombol **Save**
+  yang ditolak (403), jadi dashboard & data lab aman dari perubahan peserta lain.
 - Saat dibuka, dashboard **"SOC Lab — Investigasi Serangan Injeksi Web"** tampil
   otomatis (timeline, top IP, status code, tabel payload injeksi yang berhasil,
   user agent per IP, login panel admin, dst).
