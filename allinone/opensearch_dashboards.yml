@@ -1,0 +1,23 @@
+server.host: "0.0.0.0"
+server.port: 5601
+opensearch.hosts: ["http://localhost:9200"]
+
+# Dashboards memakai user server (kibanaserver) untuk kelola .kibana
+opensearch.username: "kibanaserver"
+opensearch.password: "kibanaserver"
+opensearch.requestHeadersAllowlist: ["authorization", "securitytenant"]
+
+# Pengunjung masuk sebagai ANONYMOUS (tanpa login) ...
+opensearch_security.auth.anonymous_auth_enabled: true
+# ... memakai Global tenant READ-ONLY: saved object bisa DILIHAT, tak bisa diubah/hapus.
+opensearch_security.multitenancy.enabled: true
+opensearch_security.multitenancy.tenants.enable_global: true
+opensearch_security.multitenancy.tenants.enable_private: false
+opensearch_security.multitenancy.tenants.preferred: ["Global"]
+# readonly_mode menyembunyikan tombol tulis di UI (penegakan sebenarnya dari role)
+opensearch_security.readonly_mode.roles: ["kibana_read_only"]
+opensearch_security.cookie.secure: false
+opensearch_security.cookie.password: "soc-lab-cookie-encryption-key-min-32-chars-xyz"
+
+# Dashboard investigasi tampil otomatis saat dibuka
+uiSettings.overrides.defaultRoute: "/app/dashboards#/view/soc-injection-dashboard"

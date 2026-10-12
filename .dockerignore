@@ -1,0 +1,6 @@
+.git
+*.md
+docker-compose.yml
+setup.sh
+teardown.sh
+**/.DS_Store
